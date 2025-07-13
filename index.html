@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malla Curricular Interactiva</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 15px;
+    }
+    .semestre {
+      background-color: #e3f2fd;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid #2196f3;
+    }
+    .semestre h2 {
+      text-align: center;
+      font-size: 16px;
+    }
+    .curso {
+      margin: 8px 0;
+      padding: 10px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .curso:hover {
+      background-color: #e0f7fa;
+    }
+    .curso.bloqueado {
+      background-color: #cfd8dc;
+      color: #757575;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .curso.tachado {
+      text-decoration: line-through;
+      background-color: #b2dfdb !important;
+      color: #004d40;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Malla Curricular Interactiva</h1>
+
+<div class="grid" id="malla"></div>
+
+<script>
+  const cursos = {
+    "I Semestre": [
+      { id: "FundamentosEnf1", nombre: "Fundamentos de Enfermería I", abre: ["DesempenoProf1"] },
+      { id: "Quimica", nombre: "Química General y Orgánica", abre: ["Bioquimica"] },
+      { id: "BiologiaCelular", nombre: "Biología Celular y Genética", abre: ["Histologia", "Anatomia", "Fisiologia", "Embriologia", "Bioquimica"] },
+      { id: "Matematicas", nombre: "Matemáticas", abre: ["Investigacion1"] },
+      { id: "Fisica", nombre: "Física", abre: ["Fisiologia", "Investigacion1"] },
+      { id: "Sociales1", nombre: "Ciencias Sociales y Salud I", abre: ["Sociales2"] },
+      { id: "Educacion1", nombre: "Educación en Salud I", abre: ["Educacion2", "ClinicaComunitaria"] },
+      { id: "Ingles1", nombre: "Inglés I", abre: ["Ingles2"] }
+    ],
+    "II Semestre": [
+      { id: "SaludComunitaria1", nombre: "Salud Comunitaria I", abre: ["SaludComunitaria2", "ClinicaComunitaria"], bloqueado: true },
+      { id: "DesempenoProf1", nombre: "Integración al Desempeño Profesional I", abre: ["Neonatologia1"], bloqueado: true },
+      { id: "Bioquimica", nombre: "Bioquímica", abre: ["Farmacologia"], bloqueado: true },
+      { id: "Embriologia", nombre: "Biología del Desarrollo y Embriología Humana", abre: ["Obstetricia1"], bloqueado: true },
+      { id: "Fisiologia", nombre: "Fisiología General", abre: ["FundamentosEnf2", "Agentes", "Neonatologia1", "FisiologiaSistemas", "Obstetricia1", "Inmunologia"], bloqueado: true },
+      { id: "Anatomia", nombre: "Anatomía", abre: ["Ginecologia", "FundamentosEnf2", "Agentes", "Neonatologia1", "Obstetricia1"], bloqueado: true },
+      { id: "Histologia", nombre: "Histología", abre: ["Ginecologia", "FundamentosEnf2", "Agentes", "Neonatologia1", "Obstetricia1"], bloqueado: true },
+      { id: "Ingles2", nombre: "Inglés II", abre: ["Ingles3"], bloqueado: true }
+    ],
+    "III Semestre": [
+      { id: "FundamentosEnf2", nombre: "Fundamentos de Enfermería II", abre: ["DesempenoProf2"], bloqueado: true },
+      { id: "Obstetricia1", nombre: "Obstetricia Fisiológica I", abre: ["Obstetricia2"], bloqueado: true },
+      { id: "Neonatologia1", nombre: "Neonatología I", abre: [], bloqueado: true },
+      { id: "FisiologiaSistemas", nombre: "Fisiología de Sistemas", abre: ["Ginecologia", "DesempenoProf2", "Neonatologia2", "Fisiopatologia", "Reproduccion", "Farmacologia", "Obstetricia2"], bloqueado: true },
+      { id: "Inmunologia", nombre: "Inmunología", abre: [], bloqueado: true },
+      { id: "Agentes", nombre: "Agentes Vivos de Enfermedad", abre: ["Infectologia", "Neonatologia2"], bloqueado: true },
+      { id: "Sociales2", nombre: "Ciencias Sociales y Salud II", abre: ["Sociales3"], bloqueado: true },
+      { id: "Ingles3", nombre: "Inglés III", abre: ["Ingles4"], bloqueado: true }
+    ],
+    "IV Semestre": [
+      { id: "Neonatologia2", nombre: "Neonatología II", abre: ["ClinicaNeonatal1", "ClinicaPrimaria1", "ClinicaPartos1", "ClinicaPuerperio", "Neonatologia3", "ObstetriciaPatologica"], bloqueado: true },
+      { id: "Ginecologia", nombre: "Ginecología Fisiológica", abre: ["ClinicaPrimaria1"], bloqueado: true },
+      { id: "Obstetricia2", nombre: "Obstetricia Fisiológica II", abre: ["ClinicaPartos1", "ClinicaPuerperio", "Neonatologia3", "ObstetriciaPatologica"], bloqueado: true },
+      { id: "DesempenoProf2", nombre: "Integración Desempeño Profesional II", abre: ["ClinicaComunitaria", "ClinicaNeonatal1", "ClinicaPrimaria1", "ClinicaPartos1", "ClinicaPuerperio"], bloqueado: true },
+      { id: "Infectologia", nombre: "Infectología", abre: ["ClinicaNeonatal1", "ClinicaPrimaria1", "ClinicaPartos1", "ClinicaPuerperio"], bloqueado: true },
+      { id: "Fisiopatologia", nombre: "Fisiopatología", abre: ["ClinicaNeonatal1", "ClinicaPrimaria1", "ClinicaPartos1", "ClinicaPuerperio", "Neonatologia3", "ObstetriciaPatologica"], bloqueado: true },
+      { id: "Farmacologia", nombre: "Farmacología", abre: ["ClinicaNeonatal1", "ClinicaPrimaria1", "ClinicaPartos1", "ClinicaPuerperio", "Neonatologia3", "ObstetriciaPatologica"], bloqueado: true },
+      { id: "Investigacion1", nombre: "Investigación en Salud I", abre: ["Gestion1", "Investigacion2"], bloqueado: true }
+    ],
+    "V Semestre": [
+      { id: "ClinicaNeonatal1", nombre: "Clínica Neonatal I", abre: [], bloqueado: true },
+      { id: "ClinicaPartos1", nombre: "Clínica de Partos I", abre: [], bloqueado: true },
+      { id: "ClinicaPrimaria1", nombre: "Clínica de Atención Primaria I", abre: ["GinecologiaPatologica"], bloqueado: true },
+      { id: "ClinicaPuerperio", nombre: "Clínica de Puerperio", abre: [], bloqueado: true },
+      { id: "ClinicaComunitaria", nombre: "Clínica de Salud Comunitaria", abre: [], bloqueado: true },
+      { id: "Modulo1", nombre: "Módulo Integrado Interdisciplinario I", abre: ["Modulo2"], bloqueado: true }
+    ],
+    "VI Semestre": [
+      { id: "Neonatologia3", nombre: "Neonatología III", abre: ["ClinicaNeonatal2", "MedicoQuirurgica"], bloqueado: true },
+      { id: "ObstetriciaPatologica", nombre: "Obstetricia Patológica", abre: ["ClinicaPrimaria2", "MedicoQuirurgica", "ClinicaAltoRiesgo"], bloqueado: true },
+      { id: "SaludComunitaria2", nombre: "Salud Comunitaria II", abre: ["ClinicaPrimaria2"], bloqueado: true },
+      { id: "Educacion2", nombre: "Educación en Salud II", abre: [], bloqueado: true },
+      { id: "Gestion1", nombre: "Gestión y Liderazgo en Salud I", abre: ["Gestion2"], bloqueado: true },
+      { id: "Investigacion2", nombre: "Investigación en Salud II", abre: ["Investigacion3"], bloqueado: true },
+      { id: "Sociales3", nombre: "Ciencias Sociales y Salud III", abre: ["Sociales4"], bloqueado: true }
+    ],
+    "VII Semestre": [
+      { id: "MedicoQuirurgica", nombre: "Enfermería Médico Quirúrgica", abre: ["ClinicaMedicoQuirurgica", "ClinicaNeonatal2", "ClinicaPartos2", "ClinicaAltoRiesgo"], bloqueado: true },
+      { id: "Reproduccion", nombre: "Reproducción Humana", abre: [], bloqueado: true },
+      { id: "GinecologiaPatologica", nombre: "Ginecología Patológica", abre: ["ClinicaPrimaria2", "ClinicaMedicoQuirurgica"], bloqueado: true },
+      { id: "Gestion2", nombre: "Gestión y Liderazgo en Salud II", abre: [], bloqueado: true },
+      { id: "Ingles4", nombre: "Inglés IV", abre: [], bloqueado: true },
+      { id: "Investigacion3", nombre: "Investigación en Salud III", abre: ["Seminario1"], bloqueado: true },
+      { id: "Sociales4", nombre: "Ciencias Sociales y Salud IV", abre: [], bloqueado: true }
+    ],
+    "VIII Semestre": [
+      { id: "ClinicaNeonatal2", nombre: "Clínica Neonatal II", abre: ["InternadoNeonatologia"], bloqueado: true },
+      { id: "ClinicaPartos2", nombre: "Clínica de Partos II", abre: ["InternadoObstetricia"], bloqueado: true },
+      { id: "ClinicaPrimaria2", nombre: "Clínica de Atención Primaria II", abre: ["InternadoPrimaria"], bloqueado: true },
+      { id: "ClinicaAltoRiesgo", nombre: "Clínica de Alto Riesgo Obstétrico", abre: ["InternadoObstetricia"], bloqueado: true },
+      { id: "ClinicaMedicoQuirurgica", nombre: "Clínica de Enfermería Médico Quirúrgica", abre: ["InternadoGinecologia"], bloqueado: true },
+      { id: "Modulo2", nombre: "Módulo Integrado Interdisciplinario II", abre: [], bloqueado: true }
+    ],
+    "IX y X Semestre": [
+      { id: "InternadoNeonatologia", nombre: "Internado de Neonatología", abre: [], bloqueado: true },
+      { id: "InternadoObstetricia", nombre: "Internado Obstetricia", abre: [], bloqueado: true },
+      { id: "InternadoPrimaria", nombre: "Internado Atención Primaria", abre: [], bloqueado: true },
+      { id: "InternadoGinecologia", nombre: "Internado Ginecología", abre: [], bloqueado: true },
+      { id: "InternadoElectivo", nombre: "Internado Electivo", abre: [], bloqueado: true },
+      { id: "Seminario1", nombre: "Seminario Unidad de Investigación I", abre: ["Seminario2"], bloqueado: true },
+      { id: "Seminario2", nombre: "Seminario Unidad de Investigación II", abre: [], bloqueado: true }
+    ]
+  };
+
+  const grid = document.getElementById('malla');
+
+  for (let semestre in cursos) {
+    const divSemestre = document.createElement('div');
+    divSemestre.className = 'semestre';
+    divSemestre.innerHTML = `<h2>${semestre}</h2>`;
+
+    cursos[semestre].forEach(c => {
+      const divCurso = document.createElement('div');
+      divCurso.className = 'curso' + (c.bloqueado ? ' bloqueado' : '');
+      divCurso.id = c.id;
+      divCurso.dataset.desbloquea = c.abre.join(',');
+      divCurso.textContent = c.nombre;
+      divSemestre.appendChild(divCurso);
+    });
+
+    grid.appendChild(divSemestre);
+  }
+
+  document.querySelectorAll('.curso').forEach(curso => {
+    curso.addEventListener('click', () => {
+      if (curso.classList.contains('bloqueado')) return;
+      curso.classList.toggle('tachado');
+      if (curso.classList.contains('tachado')) {
+        const desbloquear = curso.dataset.desbloquea?.split(',');
+        if (!desbloquear) return;
+        desbloquear.forEach(id => {
+          const siguiente = document.getElementById(id.trim());
+          if (siguiente && siguiente.classList.contains('bloqueado')) {
+            siguiente.classList.remove('bloqueado');
+          }
+        });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
